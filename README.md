@@ -5,4 +5,5 @@ The application is capable of generating synthetic text labels in the Mixtec lan
 The tagged text generated is a useful resource for the development of technologies for other languages ​​with low digital resources, development of automatic translation systems, voice recognition, among other tools.
 # Installation
 1.-Generate the environment using python -m venv env
+
 2.-Install the libraries from the archive using python -m pip install -r requirements.txt
