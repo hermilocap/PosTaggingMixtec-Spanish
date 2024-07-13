@@ -1,3 +1,4 @@
+# Import necessary modules
 from tkinter.font import Font
 import tkinter as tk
 from tkinter import ttk
@@ -9,9 +10,11 @@ from openai import OpenAI
 from openai import OpenAIError
 import json
 
+# Define the main class for the tagging application
 class TaggingFiles:
     
     def __init__(self):
+        # Initialize the main window
         self.window=tk.Tk()
         self.client = OpenAI(api_key=os.environ.get("KEYGPT"))
         self.filenamePreproces=""
@@ -24,17 +27,21 @@ class TaggingFiles:
         self.responseGPT=any
         self.strMessage=''
         self.ai_response_msg_processing_Exception=''
+        # Set the window title
         self.window.title("Automatic Grammatical Tagger for a Spanish-Mixtec Parallel Corpus")
         self.window.resizable(0,0)
         self.font1=Font(family="Arial", size=12)
         self.message= []
-        # Lista de etiquetas POS
-        self.POS_tags = [
+
+        # List of POS tags
+        self.grammatical_category = [
             "ADJETIVOS", "ADVERBIOS", "ARTÍCULOS", "DETERMINANTES", "NOMBRES",
             "VERBOS", "PRONOMBRES", "CONJUNCIONES", "NUMERALES", "INTERJECCIONES",
             "ABREVIATURAS", "PREPOSICIONES", "SIGNOS DE PUNTUACIÓN"
         ]
-        self.POS_tags_mapping = {
+
+        # Mapping for POS tags
+        self.grammatical_category_mapping = {
             "A": {"Categoria": "ADJETIVO"},
             "R": {"Categoria": "ADVERBIOS"},
             "T": {"Categoria": "ARTÍCULOS"},
@@ -49,7 +56,8 @@ class TaggingFiles:
             "S": {"Categoria": "PREPOSICIONES"},
             "F": {"Categoria": "SIGNOS DE PUNTUACIÓN"}
         }
-        # Lista de etiquetas adicionales
+
+        # # Additional tags mapping
         self.additional_tags_mapping = {
              "Q":{"Tipo":"Calificativo"},
              "G":{"Tipo","General"}, 
@@ -72,7 +80,9 @@ class TaggingFiles:
              "O":{"Tipo","Ordinal O"},
              "P":{"Tipo","Preposición"}
              }
-        self.additional_tags = {
+        
+        # Additional tags
+        self.additional_tags = [
             "Calificativo", 
             "General", 
             "Definido", 
@@ -96,21 +106,23 @@ class TaggingFiles:
             "Ordinal O", 
             "Preposición", 
             "Apreciativo"
-        }
+        ]
 
-        # Lista de géneros
+         # List of genders
         self.genders = [
             "Masculino M",
             "Femenino F",
             "Común C"
         ]
+        
+        # Mapping for genders
         self.genres_mapping = {
             "M":{"Generos","Masculino M"},
             "F":{"Generos","Femenino F"},
             "C":{"Generos","Común C"}
             }
 
-        # Lista de modos
+        # List of modes
         self.modes = [
             "Indicativo I",
             "Subjuntivo S",
@@ -120,6 +132,8 @@ class TaggingFiles:
             "Gerundio G",
             "Participio P"
         ]
+
+        # Mapping for modes
         self.mapping_modes = {
            "I":{"Modos","Indicativo I"},
            "S":{"Modos","Subjuntivo S"},
@@ -129,75 +143,94 @@ class TaggingFiles:
            "G":{"Modos","Gerundio G"},
            "P":{"Modos","Participio P"}
         }
-        # Lista de números
+        
+        # List of numbers
         self.numbers = [
             "Singular S",
             "Plural P"
         ]
+
+        # Mapping for modes
         self.mapping_numbers = {
             "S":{"Numeros","Singular S"},
             "P":{"Numeros","Plural P"}
             }
-        # Lista de tiempos
+        
+        # List of times
         self.times = [
             "Presente P",
             "Imperfecto I",
             "Futuro F",
             "Pasado S"
         ]
+
+        # Mapping for times
         self.mapping_times = {
             "P":{"Tiempos","Presente P"  },  
             "I":{"Tiempos","Imperfecto I"},
             "F":{"Tiempos","Futuro F"    },
             "S":{"Tiempos","Pasado S"    }
             }
-        # Lista de personas
+        
+         # List of people
         self.people = [
             "Primera 1",
             "Segunda 2",
             "Tercera 3"
         ]
+
+        # Mapping for people
         self.people_mapping = {
             "1":{"Personas","Primera 1"},
             "2":{"Personas","Segunda 2"},
             "3":{"Personas","Tercera 3"}
             }
-        # Lista de formas de preposición
+        
+        # List of preposition forms
         self.preposition_forms = [
             "Simple S",
             "Contraída C"
         ]
+
+        # Mapping for preposition forms
         self.forms_preposition_mapping = {
            "S":{"Formas","Simple S"},
            "C":{"Formas","Contraída C"}
         }
+
+        # List of pronoun cases
         self.PronounsCase=["Nominativo N", 
                              "Acusativo A", 
                              "Dativo D", 
                              "Oblicuo O"
         ]
+
+        # Mapping for pronoun cases
         self.PronounsCase_mapping={
             "N":{"PronombreCaso","Nominativo N"},
             "A":{"PronombreCaso","Acusativo A"},
             "D":{"PronombreCaso","Dativo D"},
             "O":{"PronombreCaso","Oblicuo O"}
         }
-                          
+
+        # Initialize the GUI frames and start the main loop                  
         self.GetFiles()     
         self.GetFrameCorpus()
         self.GetFrameTagg()    
         self.window.mainloop()
     
-    def set_selection(self,mapping,etiqueta):
+    def set_selection(self,mapping,tag):
+         # Set selection based on mapping and tag
         selection = {}
         for caracter, opciones in mapping.items():
-            if caracter in etiqueta:
+            if caracter in tag:
                 selection.update(opciones)
         return selection
         
-    def set_comboboxes(self,etiqueta):
-        if etiqueta[0] =="N":
-            self.selection= self.set_selection(self.POS_tags_mapping,etiqueta)
+    def set_comboboxes(self,tag):
+        # Set the combobox values based on the selected tag
+        if tag[0] =="N":
+            self.selection= self.set_selection(self.grammatical_category_mapping,tag)
 
         self.combo_tags.set(self.selection.get("Categoria", ""))
         self.combo_tags.set(self.selection.get("Generos", ""))
@@ -209,6 +242,7 @@ class TaggingFiles:
         self.combo_tags.set(self.selection.get("PronombreCaso", ""))
     
     def GetFiles(self):
+        # Create the file selection frame
         self.labelframefiles=ttk.LabelFrame(self.window, text="Corpus Selection")        
         self.labelframefiles.grid(row=0, column=0, padx=2, pady=2)
         
@@ -243,6 +277,7 @@ class TaggingFiles:
         self.button1.grid(row=5, column=0, columnspan=3, pady=20)
 
     def GetFrameCorpus(self):
+        # Create the frame for displaying the corpus
         self.labelframecorpus=ttk.LabelFrame(self.window, text="Pos Tagging")        
         self.labelframecorpus.grid(row=0, column=1, padx=2, pady=2)
 
@@ -250,66 +285,64 @@ class TaggingFiles:
         self.labeltitle.grid(row=0, column=1, columnspan=3, pady=2)
         
         self.scrolledtext1=st.ScrolledText(self.labelframecorpus,font=self.font1)
-        # Vincular el evento de clic con la función para capturar la selección
+        # Bind the click event to the function to capture the selection
         self.scrolledtext1.bind("<ButtonRelease-1>", self.select_tagg)
         self.scrolledtext1.grid(row=1, column=1, columnspan=3, padx=2, pady=2)
         
     def GetFrameTagg(self):
-
+        # Create the frame for displaying the tags
         self.labelframetagg=ttk.LabelFrame(self.window, text="Tag Modification")        
         self.labelframetagg.grid(row=2, column=0, padx=2, pady=2)
-        ##1
-        # Agrega un ComboBox y rellénalo con las etiquetas POS
+
+        # Add a ComboBox and fill it with POS tags
         self.labeltitle=tk.Label(self.labelframetagg,text="Choose Category",font=self.font1)
         self.labeltitle.grid(row=3, column=0, padx=2, pady=2)
-        self.combo_tags = ttk.Combobox( self.labelframetagg, values=self.POS_tags)
+        self.combo_tags = ttk.Combobox( self.labelframetagg, values=self.grammatical_category)
         self.combo_tags.grid(row=3, column=1, padx=2, pady=2)
 
-        # Agrega un ComboBox adicional con etiquetas específicas
+        # Add an additional ComboBox with specific tags
         self.labeltitle=tk.Label(self.labelframetagg,text="Choose a Type",font=self.font1)
         self.labeltitle.grid(row=4, column=0, padx=2, pady=2)
         self.combo_tags_type = ttk.Combobox(self.labelframetagg, values=self.additional_tags)
         self.combo_tags_type.grid(row=4, column=1, padx=2, pady=2)
-        ##1
-        ##2
-        # Agrega otro ComboBox con etiquetas adicionales
+
+        # Add another ComboBox with additional tags
         self.labeltitle=tk.Label(self.labelframetagg,text="Choose a Degree",font=self.font1)
         self.labeltitle.grid(row=5, column=0, padx=2, pady=2)
         self.combo_grade_tags = ttk.Combobox(self.labelframetagg, values=["Apreciativo"])
         self.combo_grade_tags.grid(row=5, column=1, padx=2, pady=2)
-        # Agrega un ComboBox para género
+
+        # Add a ComboBox for gender
         self.labeltitle=tk.Label(self.labelframetagg,text="Choose a Gender",font=self.font1)
         self.labeltitle.grid(row=6, column=0, padx=2, pady=2)
         self.gender_combo = ttk.Combobox(self.labelframetagg, values=self.genders)
         self.gender_combo.grid(row=6, column=1, padx=2, pady=2)
-        ##2
-        ##3
-        # Agrega un ComboBox para modo
+
+        # Add a ComboBox for mode
         self.labeltitle=tk.Label(self.labelframetagg,text="Choose a Mode",font=self.font1)
         self.labeltitle.grid(row=7, column=0, padx=2, pady=2)
         self.combo_mode = ttk.Combobox(self.labelframetagg, values=self.modes)
         self.combo_mode.grid(row=7, column=1, padx=2, pady=2)
-        # Agrega un ComboBox para número
+        
+        # Add a ComboBox for number
         self.labeltitle=tk.Label(self.labelframetagg,text="Choose a Number",font=self.font1)
         self.labeltitle.grid(row=3, column=2, padx=2, pady=2)
         self.combo_number = ttk.Combobox(self.labelframetagg, values=self.numbers)
         self.combo_number.grid(row=3, column=3, padx=2, pady=2)
-        ##2
-        ##3
-        # Agrega un ComboBox para times
+
+        # Add a ComboBox for times
         self.labeltitle=tk.Label(self.labelframetagg,text="Choose Verbal Tense",font=self.font1)
         self.labeltitle.grid(row=4, column=2, padx=2, pady=2)
         self.combo_time = ttk.Combobox(self.labelframetagg, values=self.times)
         self.combo_time.grid(row=4, column=3, padx=2, pady=2)
 
-        # Agrega un ComboBox para persona
+        # Add a ComboBox for person
         self.labeltitle=tk.Label(self.labelframetagg,text="Choose a Person",font=self.font1)
         self.labeltitle.grid(row=5, column=2, padx=2, pady=2)
         self.combo_person = ttk.Combobox(self.labelframetagg, values=self.people)
         self.combo_person.grid(row=5, column=3, padx=2, pady=2)
-        ##2
-        ##3
-        # Agrega un ComboBox para la forma de la preposición
+
+        # Add a ComboBox for the preposition form
         self.labeltitle=tk.Label(self.labelframetagg,text="Choose a Preposition",font=self.font1)
         self.labeltitle.grid(row=6, column=2, padx=2, pady=2)
         self.combo_form_preposition = ttk.Combobox(self.labelframetagg, values=self.preposition_forms)
@@ -332,14 +365,14 @@ class TaggingFiles:
         self.combo_grade_tags.config(state="disabled")
         self.combo_form_preposition.config(state="disabled")
         self.combo_pronoun_case.config(state="disabled")
-        # Vincular el evento de cambio de selección del ComboBox combo_etiquetas
+        # Bind the ComboBox selection change event combo_tags
         self.combo_tags.bind("<<ComboboxSelected>>", self.enable_comboboxes)
 
     def SaveFrame(self):
        
         self.labelframeSaveTagg=ttk.LabelFrame(self.window, text="Save tags")        
         self.labelframeSaveTagg.grid(row=2, column=1, padx=2, pady=2)
-                # Agrega un TextBox para mostrar el texto seleccionado
+        # Add a TextBox to display the selected text
         self.labeltitle=tk.Label(self.labelframeSaveTagg,text="Modify your tag and save",font=self.font1)
         self.labeltitle.grid(row=3, column=1, padx=2, pady=2,columnspan=3)
        
@@ -347,15 +380,15 @@ class TaggingFiles:
         self.textbox_selected_text = tk.Entry(self.labelframeSaveTagg, textvariable=self.selected_text, state="readonly",font=self.font1)
         self.textbox_selected_text.grid(row=4, column=1, padx=2, pady=2, columnspan=3)
 
-        # Agrega botones para guardar etiqueta y agregar al diccionario
+        # Add buttons to save tag and add to dictionary
         self.labeltitle=tk.Label(self.labelframeSaveTagg,text="Press on button for save",font=self.font1)
-        self.labeltitle.grid(row=5, column=1, padx=2, pady=2) #columnspan=4
+        self.labeltitle.grid(row=5, column=1, padx=2, pady=2)
        
-        self.boton_save_tag = tk.Button(self.labelframeSaveTagg, text="Save Tag",bg="blue", fg="white",font=self.font1,  command=self.save_tag)
-        self.boton_save_tag.grid(row=5, column=2, padx=2, pady=2)
+        self.button_save_tag = tk.Button(self.labelframeSaveTagg, text="Save Tag",bg="blue", fg="white",font=self.font1,  command=self.save_tag)
+        self.button_save_tag.grid(row=5, column=2, padx=2, pady=2)
        
-        self.boton_agregar_diccionario = tk.Button(self.labelframeSaveTagg, text="Save to dictionary",font=self.font1, bg="blue", fg="white", command=self.add_to_dictionary)
-        self.boton_agregar_diccionario.grid(row=5, column=3, padx=2, pady=2)
+        self.add_dictionary_button = tk.Button(self.labelframeSaveTagg, text="Save to dictionary",font=self.font1, bg="blue", fg="white", command=self.add_to_dictionary)
+        self.add_dictionary_button.grid(row=5, column=3, padx=2, pady=2)
 
     def add_to_dictionary():
         pass
@@ -364,28 +397,41 @@ class TaggingFiles:
         pass
 
     def select_tagg(self,event):
-        self.seleccion = self.scrolledtext1.tag_ranges(tk.SEL)
-        if self.seleccion:
+        # Retrieve the selected text range in the scrolled text widget
+        selection = self.scrolledtext1.tag_ranges(tk.SEL)
+        if selection:
+            # Enable the selected text textbox
             self.textbox_selected_text.config(state="normal")
+            # Get the selected text
             self.selected_tag = self.scrolledtext1.get(*self.scrolledtext1.tag_ranges(tk.SEL))
-            etiqueta=self.selected_tag.split("#")
-            self.set_comboboxes(str(etiqueta[1]))
+             # Split the selected text by "#" to extract the tag
+            tag=self.selected_tag.split("#")
+            # Set the comboboxes according to the extracted tag
+            if len(tag)>1:
+                self.set_comboboxes(str(tag[1]))
+            else:
+                mb.showwarning("Information", "Please, Choose any tag")
+            # Set the selected text variable
             self.selected_text.set(self.selected_tag)
 
     def enable_comboboxes_Adjectives(self):
+        # Enable comboboxes relevant to adjectives
         self.combo_tags_type.config(state="normal")
         self.combo_grade_tags.config(state="normal")
         self.gender_combo.config(state="normal")
         self.combo_number.config(state="normal")
-        #DESABILITADO
+
+        # Disable irrelevant comboboxes for adjectives
         self.combo_mode.config(state="disabled")
         self.combo_pronoun_case.config(state="disabled")
         self.combo_form_preposition.config(state="disabled")
         self.combo_time.config(state="disabled")
         
     def enable_comboboxes_Adverbs(self):
+        # Enable comboboxes relevant to adverbs
         self.combo_tags_type.config(state="normal")
-        #DESABILITADO
+        
+        # Disable irrelevant comboboxes for adverbs
         self.combo_mode.config(state="disabled")
         self.combo_pronoun_case.config(state="disabled")
         self.combo_form_preposition.config(state="disabled")
@@ -395,10 +441,12 @@ class TaggingFiles:
         self.combo_time.config(state="disabled")
 
     def enable_comboboxes_Articles(self):
+        # Enable comboboxes relevant to articles
         self.combo_tags_type.config(state="normal")
         self.gender_combo.config(state="normal")
         self.combo_number.config(state="normal")
-        #DESABILITADO
+        
+        # Disable irrelevant comboboxes for articles
         self.combo_mode.config(state="disabled")
         self.combo_pronoun_case.config(state="disabled")
         self.combo_form_preposition.config(state="disabled")
@@ -407,11 +455,13 @@ class TaggingFiles:
         self.combo_time.config(state="disabled")
 
     def enable_comboboxes_Determinants(self):
+        # Enable comboboxes relevant to determinants
         self.combo_tags_type.config(state="normal")
         self.combo_person.config(state="normal")
         self.gender_combo.config(state="normal")
         self.combo_number.config(state="normal")
-        #DESABILITADO
+        
+        # Disable irrelevant comboboxes for determinants
         self.combo_mode.config(state="disabled")
         self.combo_pronoun_case.config(state="disabled")
         self.combo_form_preposition.config(state="disabled")
@@ -419,10 +469,12 @@ class TaggingFiles:
         self.combo_time.config(state="disabled")
 
     def enable_comboboxes_Names(self):
+        # Enable comboboxes relevant to names
         self.combo_tags_type.config(state="normal")
         self.gender_combo.config(state="normal")
         self.combo_number.config(state="normal")
-        #DESABILITADO
+        
+         # Disable irrelevant comboboxes for names
         self.combo_mode.config(state="disabled")
         self.combo_pronoun_case.config(state="disabled")
         self.combo_form_preposition.config(state="disabled")
@@ -431,33 +483,38 @@ class TaggingFiles:
         self.combo_person.config(state="disabled")
 
     def enable_comboboxes_Verbs(self):
+        # Enable comboboxes relevant to verbs
         self.combo_tags_type.config(state="normal")
         self.combo_mode.config(state="normal")
         self.combo_time.config(state="normal") 
         self.combo_person.config(state="normal")
         self.combo_number.config(state="normal")
         self.gender_combo.config(state="normal")
-         #DESABILITADO
-       # self.combo_mode.config(state="disabled")
+
+         # Disable irrelevant comboboxes for verbs
         self.combo_pronoun_case.config(state="disabled")
         self.combo_form_preposition.config(state="disabled")
         self.combo_grade_tags.config(state="disabled")
 
     def enable_comboboxes_Pronouns(self):
+         # Enable comboboxes relevant to pronouns
         self.combo_tags_type.config(state="normal")
         self.combo_person.config(state="normal")
         self.gender_combo.config(state="normal")
         self.combo_number.config(state="normal")
         self.combo_pronoun_case.config(state="normal")
-        #DESABILITADO
+        
+        # Disable irrelevant comboboxes for pronouns
         self.combo_mode.config(state="disabled")
         self.combo_form_preposition.config(state="disabled")
         self.combo_grade_tags.config(state="disabled")
         self.combo_time.config(state="disabled")
 
     def enable_comboboxes_Conjunctions(self):
+        # Enable comboboxes relevant to conjunctions
         self.combo_tags_type.config(state="normal")
-        #DESABILITADO
+        
+        # Disable irrelevant comboboxes for conjunctions
         self.combo_mode.config(state="disabled")
         self.combo_pronoun_case.config(state="disabled")
         self.combo_form_preposition.config(state="disabled")
@@ -468,10 +525,12 @@ class TaggingFiles:
         self.combo_number.config(state="disabled")
 
     def enable_comboboxes_Numerals(self):
+        # Enable comboboxes relevant to numerals
         self.combo_tags_type.config(state="normal")
         self.gender_combo.config(state="normal")
         self.combo_number.config(state="normal")
-        #DESABILITADO
+        
+        # Disable irrelevant comboboxes for numerals
         self.combo_mode.config(state="disabled")
         self.combo_pronoun_case.config(state="disabled")
         self.combo_form_preposition.config(state="disabled")
@@ -480,11 +539,13 @@ class TaggingFiles:
         self.combo_person.config(state="disabled")
     
     def enable_comboboxes_Prepositions(self):
+        # Enable comboboxes relevant to prepositions
         self.combo_tags_type.config(state="normal")
         self.combo_form_preposition.config(state="normal")
         self.gender_combo.config(state="normal")
         self.combo_number.config(state="normal")
-        #DESABILITADO
+        
+        # Disable irrelevant comboboxes for prepositions
         self.combo_mode.config(state="disabled")
         self.combo_pronoun_case.config(state="disabled")
         self.combo_grade_tags.config(state="disabled")
@@ -492,7 +553,9 @@ class TaggingFiles:
         self.combo_person.config(state="disabled")
 
     def enable_comboboxes(self,event):
+        # Retrieve the selected tag from the combobox
         self.selected_tag = self.combo_tags.get()
+        # Enable the appropriate comboboxes based on the selected tag
         if self.selected_tag == "ADJETIVOS":
             self.enable_comboboxes_Adjectives()
         if(self.selected_tag=="ADVERBIOS"):
@@ -515,48 +578,62 @@ class TaggingFiles:
             self.enable_comboboxes_Prepositions()
     
     def count_sentences(self,file):
+            # Get the content of the file
             content=self.getFileContent(file)
+            # Split the content by newline to get individual sentences
             sentences = content.split('\n')
+            # Strip whitespace and filter out empty sentences
             sentences = [sentence.strip() for sentence in sentences if sentence.strip()]
+            # Return the count of sentences
             return len(sentences)
         
     def getFileContent(self,name):
+         # Open the file and read its content
         self.filename=open(name, "r", encoding="utf-8")
         self.filecontent=self.filename.read()
         self.filename.close()
         return self.filecontent
 
     def openFile(self):
+        # Open a file dialog to select an input file
         self.nameFileInput=fd.askopenfilename(initialdir = "/",title = "Select an intput file",filetypes = (("Text files","*.txt"),("All files","*.*")))
         if self.nameFileInput!='':
+            # Enable the delete button and display the selected file's name
             self.buttonborrarpathinput.config(state="normal")
             print(self.nameFileInput)
             os.path.basename(self.nameFileInput)
             self.labelpathinput.config(text=f"{os.path.basename(self.nameFileInput)}")
         else:
+             # Show a warning if no file is selected
             mb.showwarning("Information", "Please, Choose your file")
 
     def DeleteFileInput(self):
+        # Clear the input file selection
         if self.nameFileInput!='':
             self.labelpathinput.config(text="")
             self.nameFileInput=""
             self.buttonborrarpathinput.config(state="disabled")
 
     def saveFile(self):
+          # Open a file dialog to select an output file
         self.nameFileOuPut=fd.asksaveasfilename(initialdir = "/",title = "Select an output file",filetypes = (("Text files","*.txt"),("All files","*.*")))
         if self.nameFileOuPut!='':
+            # Enable the delete button and display the selected file's name
             self.buttonborrarpathout.config(state="normal")
             self.labelpathoutput.config(text=f"{os.path.basename(self.nameFileOuPut)}")
         else:
+            # Show a warning if no file is selected
             mb.showwarning("Information", "Please, Choose your file.")
 
     def DeleteFileOut(self):
+         # Clear the output file selection
         if self.nameFileOuPut!='':
             self.labelpathoutput.config(text="")
             self.nameFileOuPut=""
             self.buttonborrarpathout.config(state="disabled")
     
     def GetMessages(self,newvalue):
+        # Create a message for the OpenAI API request
         self.message= [{
                         "role": "user", 
                         "content": newvalue
@@ -564,6 +641,7 @@ class TaggingFiles:
         return self.message
     
     def GetReponseGPT(self,chatgptPrompt):
+        # Get the response from the OpenAI API
         msg=self.GetMessages(chatgptPrompt)
         try:
             chat_completion = self.client.chat.completions.create(
@@ -574,16 +652,19 @@ class TaggingFiles:
             self.responseGPT=chat_completion.choices[0].message.content
             self.strMessage='Ok'
         except OpenAIError as ai_err:
+            # Show a warning if there's an error
             self.ai_response_msg_processing_Exception = ai_err.body["message"]
             mb.showwarning("Information",self.ai_response_msg_processing_Exception)
         return  self.responseGPT
     
     def taggerFile(self):
+        # Check if both input and output files are selected
         if self.nameFileOuPut!='' and self.nameFileInput!='':
+             # Get the content of the input file
             self.filecontent=self.getFileContent(self.nameFileInput)
             number_sentences = self.count_sentences(self.nameFileInput)
             if number_sentences<26:
-                
+                # Create the prompt for tagging
                 self.chatgptPrompt='''Etiqueta el texto que se encuentra en medio de <> segun el grupo EAGLES. Se deben etiquetar todas las palabras y signos de puntuación.
                     Despues genera un formato de salida como este palabra#Pos tagg donde palabra es la palabra a etiquetar y pos tagg es la etiqueta asignada. 
                     Se debe generar una palabra por linea con su etiqueta como el siguiente ejemplo: 
@@ -594,32 +675,31 @@ class TaggingFiles:
                     .#Fp'''+'<'+self.filecontent+'>'
                 self.responseTagg=self.GetReponseGPT(self.chatgptPrompt)
                 with open(self.nameFileOuPut, 'w', encoding='utf-8') as output_file:
+                    # Write the response to the output file
                     output_file.write(str(self.responseTagg))
-                    ##COMBO Y SCROOLLED
+
+                # Enable relevant widgets and update the scrolled text widget with the response
                 self.combo_tags.config(state="normal")
                 self.textbox_selected_text.config(state="normal")
                 self.scrolledtext1.delete("1.0", tk.END)  
                 self.scrolledtext1.insert("1.0", self.responseTagg)
                 self.filecontentOutput=self.getFileContent(self.nameFileOuPut)
 
+                # Append the response to the output file if it is not empty
                 if os.stat(self.nameFileOuPut).st_size != 0:
                     with open(self.nameFileOuPut, 'a', encoding='utf-8') as output_file:
                         output_file.write('\n'+str(self.responseTagg))
             else:
+                    # Show a warning if the number of sentences exceeds the limit
                     mb.showwarning("Information",f"The total number of sentences allowed is 25")
         else:
+            # Show a warning if either input or output file is not selected
             mb.showwarning("Information", "First, select an Input or Output corpus.")
         
     def SaveTagg(self,tagg):
         pass
-        #La salida seria en formato Json. Aqui se guarda la etiqueta en el archivo de salida en formato json
-        # en su token correspondiente del texto etiquetado, 
-        #despues de modificarla en la interfaz.
     
     def SaveDictionary(self,word,tagg):
         pass
-        #Aqui se guarda aquellas etiquetas de tokens que son repetitivas, como articulos y adverbios. 
-        #Se guardan en el arhivo de diccionario y además se guarda en el archivo json de salida.
-        #TaggDict = dict()
 
-app1=TaggingFiles()
+root=TaggingFiles()
