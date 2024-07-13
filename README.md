@@ -75,7 +75,6 @@ nìka’ndi#VMN0000
 tùxìí#NCMS000
 .#Fp
 ```
-**ExeFiles.** Contains the application executable. You must access the <code>dist\AITagger</code> directory and run AITagger. <br />
 **Notebooks:** Contains 3 Google Colab notebooks for CRF training. LSTM, and Transformers. <br />
 1. Add environment variables.
 If you have Windows 11 you must access <code>Settings/Advanced system settings/Environment variables</code><br />
