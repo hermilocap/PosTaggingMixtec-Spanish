@@ -10,14 +10,76 @@ from openai import OpenAI
 from openai import OpenAIError
 import json
 
-# Define the main class for the tagging application
 class TaggingFiles:
-    
+    """
+    A class to create a graphical user interface (GUI) for an automatic grammatical tagger for a Spanish-Mixtec parallel corpus.
+
+    Attributes:
+        window (tk.Tk): The main window of the GUI.
+        client (OpenAI): The OpenAI client initialized with the API key.
+        filenamePreproces (str): The filename for preprocessed files.
+        modelname (str): The model name retrieved from the environment variable.
+        selection (dict): A dictionary to hold the selected tag information.
+        nameFileOuPut (str): The output file name.
+        nameFileInput (str): The input file name.
+        filecontent (str): The content of the input file.
+        response (any): The response placeholder.
+        responseGPT (any): The response from the GPT model.
+        strMessage (str): A string message placeholder.
+        ai_response_msg_processing_Exception (str): Exception message for AI response processing.
+        font1 (Font): The font used in the GUI.
+        message (list): A list to hold messages.
+        grammatical_category (list): A list of part-of-speech (POS) tags.
+        grammatical_category_mapping (dict): A mapping dictionary for POS tags.
+        additional_tags_mapping (dict): A mapping dictionary for additional tags.
+        additional_tags (list): A list of additional tags.
+        genders (list): A list of genders.
+        genres_mapping (dict): A mapping dictionary for genders.
+        modes (list): A list of modes.
+        mapping_modes (dict): A mapping dictionary for modes.
+        numbers (list): A list of numbers.
+        mapping_numbers (dict): A mapping dictionary for numbers.
+        times (list): A list of times.
+        mapping_times (dict): A mapping dictionary for times.
+        people (list): A list of people.
+        people_mapping (dict): A mapping dictionary for people.
+        preposition_forms (list): A list of preposition forms.
+        forms_preposition_mapping (dict): A mapping dictionary for preposition forms.
+        PronounsCase (list): A list of pronoun cases.
+        PronounsCase_mapping (dict): A mapping dictionary for pronoun cases.
+        labelframefiles (ttk.LabelFrame): The file selection frame.
+        labelpathinput (tk.Label): The label for input file path.
+        labelpathoutput (tk.Label): The label for output file path.
+        labelframecorpus (ttk.LabelFrame): The corpus display frame.
+        scrolledtext1 (st.ScrolledText): The scrolled text widget for displaying the corpus.
+        labelframetagg (ttk.LabelFrame): The tag modification frame.
+        combo_tags (ttk.Combobox): The combo box for POS tags.
+        combo_tags_type (ttk.Combobox): The combo box for additional tags.
+        combo_grade_tags (ttk.Combobox): The combo box for tag degrees.
+        gender_combo (ttk.Combobox): The combo box for gender.
+        combo_mode (ttk.Combobox): The combo box for mode.
+        combo_number (ttk.Combobox): The combo box for number.
+        combo_time (ttk.Combobox): The combo box for time.
+        combo_person (ttk.Combobox): The combo box for person.
+        combo_form_preposition (ttk.Combobox): The combo box for preposition form.
+        combo_pronoun_case (ttk.Combobox): The combo box for pronoun case.
+        labelframeSaveTagg (ttk.LabelFrame): The save tags frame.
+        selected_text (tk.StringVar): The variable to hold the selected text.
+        textbox_selected_text (tk.Entry): The entry widget for displaying selected text.
+        button_save_tag (tk.Button): The button to save tags.
+        add_dictionary_button (tk.Button): The button to save tags to the dictionary.
+        selected_tag (str): The selected tag.
+    """
+
     def __init__(self):
-        # Initialize the main window
+        """
+        Initializes the TaggingFiles class by setting up the main window, initializing the attributes, and starting the main loop.
+        """
         self.window=tk.Tk()
+        #KEYGPT: is the name of the environment variable
         self.client = OpenAI(api_key=os.environ.get("KEYGPT"))
         self.filenamePreproces=""
+        #MODELGPT: is the name of the GPT model
         self.modelname=os.environ.get("MODELGPT")
         self.selection={}
         self.nameFileOuPut=''
@@ -27,11 +89,11 @@ class TaggingFiles:
         self.responseGPT=any
         self.strMessage=''
         self.ai_response_msg_processing_Exception=''
-        # Set the window title
         self.window.title("Automatic Grammatical Tagger for a Spanish-Mixtec Parallel Corpus")
         self.window.resizable(0,0)
         self.font1=Font(family="Arial", size=12)
         self.message= []
+        
 
         # List of POS tags
         self.grammatical_category = [
@@ -220,7 +282,16 @@ class TaggingFiles:
         self.window.mainloop()
     
     def set_selection(self,mapping,tag):
-         # Set selection based on mapping and tag
+        """
+        Sets the selection based on the provided mapping and tag.
+
+        Args:
+            mapping (dict): The dictionary containing the mapping information.
+            tag (str): The tag to be matched with the mapping.
+
+        Returns:
+            dict: The updated selection dictionary.
+        """
         selection = {}
         for caracter, opciones in mapping.items():
             if caracter in tag:
@@ -228,7 +299,12 @@ class TaggingFiles:
         return selection
         
     def set_comboboxes(self,tag):
-        # Set the combobox values based on the selected tag
+        """
+        Sets the combo box values based on the selected tag.
+
+        Args:
+            tag (str): The selected tag.
+        """
         if tag[0] =="N":
             self.selection= self.set_selection(self.grammatical_category_mapping,tag)
 
@@ -242,7 +318,9 @@ class TaggingFiles:
         self.combo_tags.set(self.selection.get("PronombreCaso", ""))
     
     def GetFiles(self):
-        # Create the file selection frame
+        """
+        Creates the file selection frame and its widgets.
+        """
         self.labelframefiles=ttk.LabelFrame(self.window, text="Corpus Selection")        
         self.labelframefiles.grid(row=0, column=0, padx=2, pady=2)
         
@@ -270,14 +348,16 @@ class TaggingFiles:
         self.labelpathoutput=tk.Label(self.labelframefiles,font=self.font1)
         self.labelpathoutput.grid(row=3, column=0, columnspan=3, padx=2, pady=2)
 
-        self.label3=self.label2=tk.Label(self.labelframefiles,text="Press on button AI Tagger to start+",font=self.font1)
+        self.label3=self.label2=tk.Label(self.labelframefiles,text="Press on button AI Tagger to start",font=self.font1)
         self.label3.grid(row=4, column=0, columnspan=3, pady=2)
 
         self.button1=tk.Button(self.labelframefiles, font=self.font1, bg="green", fg="white", text=" AI Tagger", command=self.taggerFile)
         self.button1.grid(row=5, column=0, columnspan=3, pady=20)
 
     def GetFrameCorpus(self):
-        # Create the frame for displaying the corpus
+        """
+        Creates the frame for displaying the corpus and its widgets.
+        """
         self.labelframecorpus=ttk.LabelFrame(self.window, text="Pos Tagging")        
         self.labelframecorpus.grid(row=0, column=1, padx=2, pady=2)
 
@@ -290,7 +370,9 @@ class TaggingFiles:
         self.scrolledtext1.grid(row=1, column=1, columnspan=3, padx=2, pady=2)
         
     def GetFrameTagg(self):
-        # Create the frame for displaying the tags
+        """
+        Creates the frame for displaying the tags and its widgets.
+        """
         self.labelframetagg=ttk.LabelFrame(self.window, text="Tag Modification")        
         self.labelframetagg.grid(row=2, column=0, padx=2, pady=2)
 
@@ -369,7 +451,9 @@ class TaggingFiles:
         self.combo_tags.bind("<<ComboboxSelected>>", self.enable_comboboxes)
 
     def SaveFrame(self):
-       
+        """
+        Creates the frame for saving tags and its widgets.
+        """
         self.labelframeSaveTagg=ttk.LabelFrame(self.window, text="Save tags")        
         self.labelframeSaveTagg.grid(row=2, column=1, padx=2, pady=2)
         # Add a TextBox to display the selected text
@@ -391,13 +475,24 @@ class TaggingFiles:
         self.add_dictionary_button.grid(row=5, column=3, padx=2, pady=2)
 
     def add_to_dictionary():
+        """
+        Adds the modified tag to the dictionary.
+        """
         pass
     
     def save_tag():
+        """
+        Saves the modified tag.
+        """
         pass
 
     def select_tagg(self,event):
-        # Retrieve the selected text range in the scrolled text widget
+        """
+        Retrieves the selected text range in the scrolled text widget and updates the combo boxes.
+
+        Args:
+            event (tk.Event): The event object for the selection.
+        """
         selection = self.scrolledtext1.tag_ranges(tk.SEL)
         if selection:
             # Enable the selected text textbox
@@ -415,7 +510,9 @@ class TaggingFiles:
             self.selected_text.set(self.selected_tag)
 
     def enable_comboboxes_Adjectives(self):
-        # Enable comboboxes relevant to adjectives
+        """
+        Enables the combo boxes relevant to adjectives and disables irrelevant combo boxes.
+        """
         self.combo_tags_type.config(state="normal")
         self.combo_grade_tags.config(state="normal")
         self.gender_combo.config(state="normal")
@@ -428,7 +525,9 @@ class TaggingFiles:
         self.combo_time.config(state="disabled")
         
     def enable_comboboxes_Adverbs(self):
-        # Enable comboboxes relevant to adverbs
+        """
+        Enables the combo boxes relevant to adverbs and disables irrelevant combo boxes.
+        """
         self.combo_tags_type.config(state="normal")
         
         # Disable irrelevant comboboxes for adverbs
@@ -441,7 +540,9 @@ class TaggingFiles:
         self.combo_time.config(state="disabled")
 
     def enable_comboboxes_Articles(self):
-        # Enable comboboxes relevant to articles
+        """
+        Enables the combo boxes relevant to articles and disables irrelevant combo boxes.
+        """
         self.combo_tags_type.config(state="normal")
         self.gender_combo.config(state="normal")
         self.combo_number.config(state="normal")
@@ -455,7 +556,9 @@ class TaggingFiles:
         self.combo_time.config(state="disabled")
 
     def enable_comboboxes_Determinants(self):
-        # Enable comboboxes relevant to determinants
+        """
+        Enables the combo boxes relevant to determinants and disables irrelevant combo boxes.
+        """
         self.combo_tags_type.config(state="normal")
         self.combo_person.config(state="normal")
         self.gender_combo.config(state="normal")
@@ -469,7 +572,9 @@ class TaggingFiles:
         self.combo_time.config(state="disabled")
 
     def enable_comboboxes_Names(self):
-        # Enable comboboxes relevant to names
+        """
+        Enables the combo boxes relevant to names and disables irrelevant combo boxes.
+        """
         self.combo_tags_type.config(state="normal")
         self.gender_combo.config(state="normal")
         self.combo_number.config(state="normal")
@@ -483,7 +588,9 @@ class TaggingFiles:
         self.combo_person.config(state="disabled")
 
     def enable_comboboxes_Verbs(self):
-        # Enable comboboxes relevant to verbs
+        """
+        Enables the combo boxes relevant to verbs and disables irrelevant combo boxes.
+        """
         self.combo_tags_type.config(state="normal")
         self.combo_mode.config(state="normal")
         self.combo_time.config(state="normal") 
@@ -497,7 +604,9 @@ class TaggingFiles:
         self.combo_grade_tags.config(state="disabled")
 
     def enable_comboboxes_Pronouns(self):
-         # Enable comboboxes relevant to pronouns
+        """
+        Enables the combo boxes relevant to pronouns and disables irrelevant combo boxes.
+        """
         self.combo_tags_type.config(state="normal")
         self.combo_person.config(state="normal")
         self.gender_combo.config(state="normal")
@@ -511,7 +620,9 @@ class TaggingFiles:
         self.combo_time.config(state="disabled")
 
     def enable_comboboxes_Conjunctions(self):
-        # Enable comboboxes relevant to conjunctions
+        """
+        Enables the combo boxes relevant to conjunctions and disables irrelevant combo boxes.
+        """
         self.combo_tags_type.config(state="normal")
         
         # Disable irrelevant comboboxes for conjunctions
@@ -525,7 +636,9 @@ class TaggingFiles:
         self.combo_number.config(state="disabled")
 
     def enable_comboboxes_Numerals(self):
-        # Enable comboboxes relevant to numerals
+        """
+        Enables the combo boxes relevant to numerals and disables irrelevant combo boxes.
+        """
         self.combo_tags_type.config(state="normal")
         self.gender_combo.config(state="normal")
         self.combo_number.config(state="normal")
@@ -539,7 +652,9 @@ class TaggingFiles:
         self.combo_person.config(state="disabled")
     
     def enable_comboboxes_Prepositions(self):
-        # Enable comboboxes relevant to prepositions
+        """
+        Enables the combo boxes relevant to prepositions and disables irrelevant combo boxes.
+        """
         self.combo_tags_type.config(state="normal")
         self.combo_form_preposition.config(state="normal")
         self.gender_combo.config(state="normal")
@@ -553,7 +668,15 @@ class TaggingFiles:
         self.combo_person.config(state="disabled")
 
     def enable_comboboxes(self,event):
-        # Retrieve the selected tag from the combobox
+        """
+        Enables the appropriate comboboxes based on the selected tag from the combobox.
+
+        Parameters:
+        event (Event): The event that triggers the function call.
+
+        Returns:
+        None
+        """
         self.selected_tag = self.combo_tags.get()
         # Enable the appropriate comboboxes based on the selected tag
         if self.selected_tag == "ADJETIVOS":
@@ -578,24 +701,45 @@ class TaggingFiles:
             self.enable_comboboxes_Prepositions()
     
     def count_sentences(self,file):
-            # Get the content of the file
-            content=self.getFileContent(file)
-            # Split the content by newline to get individual sentences
-            sentences = content.split('\n')
-            # Strip whitespace and filter out empty sentences
-            sentences = [sentence.strip() for sentence in sentences if sentence.strip()]
-            # Return the count of sentences
-            return len(sentences)
+        """
+        Counts the number of sentences in a given file.
+
+        Parameters:
+        file (str): The path to the file.
+
+        Returns:
+        int: The number of sentences in the file.
+        """
+        content=self.getFileContent(file)
+        # Split the content by newline to get individual sentences
+        sentences = content.split('\n')
+        # Strip whitespace and filter out empty sentences
+        sentences = [sentence.strip() for sentence in sentences if sentence.strip()]
+        # Return the count of sentences
+        return len(sentences)
         
     def getFileContent(self,name):
-         # Open the file and read its content
+        """
+        Retrieves the content of a file.
+
+        Parameters:
+        name (str): The name or path of the file.
+
+        Returns:
+        str: The content of the file.
+        """
         self.filename=open(name, "r", encoding="utf-8")
         self.filecontent=self.filename.read()
         self.filename.close()
         return self.filecontent
 
     def openFile(self):
-        # Open a file dialog to select an input file
+        """
+        Opens a file dialog to select an input file and displays the selected file's name.
+
+        Returns:
+        None
+        """
         self.nameFileInput=fd.askopenfilename(initialdir = "/",title = "Select an intput file",filetypes = (("Text files","*.txt"),("All files","*.*")))
         if self.nameFileInput!='':
             # Enable the delete button and display the selected file's name
@@ -608,14 +752,24 @@ class TaggingFiles:
             mb.showwarning("Information", "Please, Choose your file")
 
     def DeleteFileInput(self):
-        # Clear the input file selection
+        """
+        Clears the input file selection.
+
+        Returns:
+        None
+        """
         if self.nameFileInput!='':
             self.labelpathinput.config(text="")
             self.nameFileInput=""
             self.buttonborrarpathinput.config(state="disabled")
 
     def saveFile(self):
-          # Open a file dialog to select an output file
+        """
+        Opens a file dialog to select an output file and displays the selected file's name.
+
+        Returns:
+        None
+        """
         self.nameFileOuPut=fd.asksaveasfilename(initialdir = "/",title = "Select an output file",filetypes = (("Text files","*.txt"),("All files","*.*")))
         if self.nameFileOuPut!='':
             # Enable the delete button and display the selected file's name
@@ -626,14 +780,27 @@ class TaggingFiles:
             mb.showwarning("Information", "Please, Choose your file.")
 
     def DeleteFileOut(self):
-         # Clear the output file selection
+        """
+        Clears the output file selection.
+
+        Returns:
+        None
+        """
         if self.nameFileOuPut!='':
             self.labelpathoutput.config(text="")
             self.nameFileOuPut=""
             self.buttonborrarpathout.config(state="disabled")
     
     def GetMessages(self,newvalue):
-        # Create a message for the OpenAI API request
+        """
+        Creates a message for the OpenAI API request.
+
+        Parameters:
+        newvalue (str): The content to be sent to the API.
+
+        Returns:
+        list: A list containing the message as a dictionary.
+        """
         self.message= [{
                         "role": "user", 
                         "content": newvalue
@@ -641,7 +808,15 @@ class TaggingFiles:
         return self.message
     
     def GetReponseGPT(self,chatgptPrompt):
-        # Get the response from the OpenAI API
+        """
+        Gets the response from the OpenAI API based on the provided prompt.
+
+        Parameters:
+        chatgptPrompt (str): The prompt to be sent to the API.
+
+        Returns:
+        str: The response from the OpenAI API.
+        """
         msg=self.GetMessages(chatgptPrompt)
         try:
             chat_completion = self.client.chat.completions.create(
@@ -658,7 +833,12 @@ class TaggingFiles:
         return  self.responseGPT
     
     def taggerFile(self):
-        # Check if both input and output files are selected
+        """
+        Tags the content of the selected input file and writes the result to the selected output file.
+
+        Returns:
+        None
+        """
         if self.nameFileOuPut!='' and self.nameFileInput!='':
              # Get the content of the input file
             self.filecontent=self.getFileContent(self.nameFileInput)
@@ -696,10 +876,4 @@ class TaggingFiles:
             # Show a warning if either input or output file is not selected
             mb.showwarning("Information", "First, select an Input or Output corpus.")
         
-    def SaveTagg(self,tagg):
-        pass
-    
-    def SaveDictionary(self,word,tagg):
-        pass
-
 root=TaggingFiles()
