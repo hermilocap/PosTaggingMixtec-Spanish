@@ -347,6 +347,16 @@ class TaggingFiles:
 
         self.labelpathoutput=tk.Label(self.labelframefiles,font=self.font1)
         self.labelpathoutput.grid(row=3, column=0, columnspan=3, padx=2, pady=2)
+        
+        self.label_model = tk.Label(self.labelframefiles, text="Select Model")
+        self.label_model.grid(row=4, column=0, columnspan=3, padx=2, pady=2)
+
+        self.model_combobox = ttk.Combobox(self.labelframefiles, values=["CRF", "LSTM", "Transformers", "GPT"])
+        self.model_combobox.grid(row=5, column=0, padx=2, pady=2)
+        self.model_combobox.set("GPT")  # Set GPT as the default option
+        self.model_combobox.bind("<<ComboboxSelected>>", self.on_model_selected)
+        self.model_selected = 'GPT'  # Default model is GPT
+
 
         self.label3=self.label2=tk.Label(self.labelframefiles,text="Press on button AI Tagger to start",font=self.font1)
         self.label3.grid(row=4, column=0, columnspan=3, pady=2)
