@@ -348,21 +348,20 @@ class TaggingFiles:
         self.labelpathoutput=tk.Label(self.labelframefiles,font=self.font1)
         self.labelpathoutput.grid(row=3, column=0, columnspan=3, padx=2, pady=2)
         
-        self.label_model = tk.Label(self.labelframefiles, text="Select Model")
+        self.label_model = tk.Label(self.labelframefiles, text="Select Model",font=self.font1)
         self.label_model.grid(row=4, column=0, columnspan=3, padx=2, pady=2)
 
-        self.model_combobox = ttk.Combobox(self.labelframefiles, values=["CRF", "LSTM", "Transformers", "GPT"])
-        self.model_combobox.grid(row=5, column=0, padx=2, pady=2)
+        self.model_combobox = ttk.Combobox(self.labelframefiles, values=["CRF", "LSTM", "Transformers", "GPT"],font=self.font1)
+        self.model_combobox.grid(row=5, column=0,columnspan=3, padx=2, pady=2)
         self.model_combobox.set("GPT")  # Set GPT as the default option
         self.model_combobox.bind("<<ComboboxSelected>>", self.on_model_selected)
         self.model_selected = 'GPT'  # Default model is GPT
 
-
         self.label3=self.label2=tk.Label(self.labelframefiles,text="Press on button AI Tagger to start",font=self.font1)
-        self.label3.grid(row=4, column=0, columnspan=3, pady=2)
+        self.label3.grid(row=6, column=0, columnspan=3, pady=2)
 
         self.button1=tk.Button(self.labelframefiles, font=self.font1, bg="green", fg="white", text=" AI Tagger", command=self.taggerFile)
-        self.button1.grid(row=5, column=0, columnspan=3, pady=20)
+        self.button1.grid(row=7, column=0, columnspan=3, pady=20)
 
     def GetFrameCorpus(self):
         """
@@ -483,6 +482,30 @@ class TaggingFiles:
        
         self.add_dictionary_button = tk.Button(self.labelframeSaveTagg, text="Save to dictionary",font=self.font1, bg="blue", fg="white", command=self.add_to_dictionary)
         self.add_dictionary_button.grid(row=5, column=3, padx=2, pady=2)
+
+    def on_model_selected(self, event):
+        """
+        Handles the event when a model is selected from the combobox.
+
+        Parameters:
+        event (Event): The event that triggers the function call.
+
+        Returns:
+        None
+        """
+        self.model_selected = self.model_combobox.get()
+        if self.model_selected == "CRF":
+            pass
+            #mb.showinfo("Information", "CRF model selected.")
+        elif self.model_selected == "LSTM":
+            pass
+            #mb.showinfo("Information", "LSTM model selected.")
+        elif self.model_selected == "Transformers":
+            pass
+            #mb.showinfo("Information", "Transformers model selected.")
+        elif self.model_selected == "GPT":
+            pass
+            #mb.showinfo("Information", "GPT model selected.")
 
     def add_to_dictionary():
         """
@@ -844,7 +867,34 @@ class TaggingFiles:
     
     def taggerFile(self):
         """
-        Tags the content of the selected input file and writes the result to the selected output file.
+        Tags the content of the selected input file using the selected model.
+
+        Returns:
+        None
+        """
+        if self.nameFileOuPut!='' and self.nameFileInput!='':
+            if self.model_selected == "CRF":
+                pass
+                #self.tag_with_crf(self.nameFileInput)
+            elif self.model_selected == "LSTM":
+                pass
+                #self.tag_with_lstm(self.nameFileInput)
+            elif self.model_selected == "Transformers":
+                pass
+                #self.tag_with_transformers(self.nameFileInput)
+            elif self.model_selected == "GPT":
+                self.tag_with_gpt()
+            else:
+                mb.showwarning("Information", "Please select a model.")
+        else:
+            mb.showwarning("Information", "Please select an input file first.")
+    
+    def tag_with_gpt(self):
+        """
+        Tags the content of the file using a GPT model and displays the result.
+
+        Parameters:
+        file_path (str): The path to the file to be tagged.
 
         Returns:
         None
