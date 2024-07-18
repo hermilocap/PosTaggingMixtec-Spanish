@@ -955,6 +955,9 @@ class TaggingFiles:
         #self.display_tagged_content(tagged_content)
         self.scrolledtext1.delete("1.0", tk.END)  
         self.scrolledtext1.insert("1.0", tagged_content)
+        
+        with open(self.nameFileOuPut, 'w', encoding='utf-8') as output_file:
+            output_file.write(str(tagged_content))
     
     def consume_crf_model(self, content):
         """
