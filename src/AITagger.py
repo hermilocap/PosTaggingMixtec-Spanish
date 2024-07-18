@@ -9,6 +9,7 @@ import os,re
 from openai import OpenAI
 from openai import OpenAIError
 import json
+from nltk.tag import CRFTagger
 
 class TaggingFiles:
     """
@@ -81,6 +82,10 @@ class TaggingFiles:
         self.filenamePreproces=""
         #MODELGPT: is the name of the GPT model
         self.modelname=os.environ.get("MODELGPT")
+        # Cargar el modelo CRF entrenado
+        self.ct = CRFTagger()
+        self.ct.set_model_file('data/training_crf_model.crfsuite')
+        
         self.selection={}
         self.nameFileOuPut=''
         self.nameFileInput=''
@@ -874,8 +879,7 @@ class TaggingFiles:
         """
         if self.nameFileOuPut!='' and self.nameFileInput!='':
             if self.model_selected == "CRF":
-                pass
-                #self.tag_with_crf(self.nameFileInput)
+                self.tag_with_crf()
             elif self.model_selected == "LSTM":
                 pass
                 #self.tag_with_lstm(self.nameFileInput)
@@ -935,5 +939,36 @@ class TaggingFiles:
         else:
             # Show a warning if either input or output file is not selected
             mb.showwarning("Information", "First, select an Input or Output corpus.")
-        
+            
+    def tag_with_crf(self):
+        """
+        Tags the content of the file using a CRF model and displays the result.
+
+        Parameters:
+        file_path (str): The path to the file to be tagged.
+
+        Returns:
+        None
+        """
+        content = self.getFileContent(self.nameFileInput)
+        tagged_content = self.consume_crf_model(content)
+        #self.display_tagged_content(tagged_content)
+        self.scrolledtext1.delete("1.0", tk.END)  
+        self.scrolledtext1.insert("1.0", tagged_content)
+    
+    def consume_crf_model(self, content):
+        """
+        Consuming a CRF model to tag content.
+
+        Parameters:
+        content (str): The content to be tagged.
+
+        Returns:
+        str: The tagged content.
+        """
+        words = content.split()
+        tagged = self.ct.tag(words)
+        output_format = '\n'.join([f'{word}#{tag}' for word, tag in tagged])
+        return output_format
+    
 root=TaggingFiles()
