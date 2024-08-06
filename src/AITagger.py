@@ -10,6 +10,11 @@ from openai import OpenAI
 from openai import OpenAIError
 import json
 from nltk.tag import CRFTagger
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+import pickle
 
 class TaggingFiles:
     """
@@ -82,10 +87,18 @@ class TaggingFiles:
         self.filenamePreproces=""
         #MODELGPT: is the name of the GPT model
         self.modelname=os.environ.get("MODELGPT")
-        # Cargar el modelo CRF entrenado
+        # Load the trained CRF model
         self.ct = CRFTagger()
         self.ct.set_model_file('data/training_crf_model.crfsuite')
-        
+        # Load the LSTM model
+        self.model = load_model("data/my_model.h5")
+        # Load the saved LSTM tokenizers
+        with open('data/word_tokenizer.pkl', 'rb') as handle:
+            self.word_tokenizer = pickle.load(handle)
+
+        with open('data/tag_tokenizer.pkl', 'rb') as handle:
+            self.tag_tokenizer = pickle.load(handle)
+
         self.selection={}
         self.nameFileOuPut=''
         self.nameFileInput=''
@@ -881,8 +894,7 @@ class TaggingFiles:
             if self.model_selected == "CRF":
                 self.tag_with_crf()
             elif self.model_selected == "LSTM":
-                pass
-                #self.tag_with_lstm(self.nameFileInput)
+                self.tag_with_lstm()
             elif self.model_selected == "Transformers":
                 pass
                 #self.tag_with_transformers(self.nameFileInput)
@@ -953,8 +965,8 @@ class TaggingFiles:
         content = self.getFileContent(self.nameFileInput)
         tagged_content = self.consume_crf_model(content)
         #self.display_tagged_content(tagged_content)
-        self.scrolledtext1.delete("1.0", tk.END)  
-        self.scrolledtext1.insert("1.0", tagged_content)
+        #self.scrolledtext1.delete("1.0", tk.END)  
+        #self.scrolledtext1.insert("1.0", tagged_content)
         
         with open(self.nameFileOuPut, 'w', encoding='utf-8') as output_file:
             output_file.write(str(tagged_content))
@@ -974,4 +986,72 @@ class TaggingFiles:
         output_format = '\n'.join([f'{word}#{tag}' for word, tag in tagged])
         return output_format
     
+    def tag_with_lstm(self):
+        """
+        Process the input file content and tag it using the LSTM model.
+        
+        This method reads the content from the input file, splits it into tokens,
+        and processes it through the LSTM model for tagging. The tagged content
+        is then consumed by the `consume_lstm_model` method for further processing.
+
+        Returns:
+            None
+        """
+        item = self.getFileContent(self.nameFileInput)
+        content=item.strip().split()
+        self.consume_lstm_model(content)
+        tagged_content = self.consume_lstm_model(content)
+
+    def consume_lstm_model(self,content):
+        """
+        Consume the LSTM model to process and display the content.
+
+        This method takes the processed content and sends it to the
+        `process_and_display` method for further processing and displaying the
+        tagged content.
+
+        Args:
+            content (list): The processed input content split into tokens.
+
+        Returns:
+            None
+        """
+        self.process_and_display(content)
+    
+    def process_and_display(self,input_text):
+        """
+        Process the input text using the LSTM model and display the tagged content.
+
+        This method converts the input text into sequences, pads them, and predicts
+        the tags using the LSTM model. The tagged content is then displayed in the
+        GUI and written to the output file.
+
+        Args:
+            input_text (list): The input text split into tokens.
+
+        Returns:
+            None
+        """
+        inputs_int = self.word_tokenizer.texts_to_sequences([input_text])
+        inputs_padded = pad_sequences(inputs_int, maxlen=self.model.input_shape[1])
+        
+        probs = self.model.predict(inputs_padded)
+        output_text = []
+        
+        for i in range(len(inputs_padded[0])):
+            word_id = inputs_padded[0][i]
+            if word_id != 0:
+                word = self.word_tokenizer.index_word.get(word_id, 'UNK')
+                tag_id = np.argmax(probs[0][i])
+                tag = self.tag_tokenizer.index_word.get(tag_id, 'UNK')
+                output_text.append(f"{word}#{tag}")
+        
+        content='\n'.join(output_text)
+
+        self.scrolledtext1.delete('1.0', tk.END)
+        self.scrolledtext1.insert(tk.END, "\n".join(output_text))
+        
+        with open(self.nameFileOuPut, 'w', encoding='utf-8') as output_file:
+            output_file.write(str(content))    
+
 root=TaggingFiles()
